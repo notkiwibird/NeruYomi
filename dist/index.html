@@ -15,55 +15,29 @@
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap" rel="stylesheet">
 <title>NeruYomi V0.48B</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="pdf.min.js"></script>
 <!--
-  ============================================================
-  MANGA READER — Local + MangaDex edition
-  ============================================================
+  NeruYomi V0.48B — Local manga reader
+  ======================================
+  Opens a local folder of manga series.
+  Chrome/Edge: File System Access API (full support)
+  Firefox/Safari: <input webkitdirectory> fallback
 
-<<<<<<< HEAD
-  Two content sources:
-=======
-  Source:
->>>>>>> 26755257dac64640995f8e52a1c88d51cff10844
-
-  1. LOCAL LIBRARY (no server needed)
-     Open a folder from disk. Chrome/Edge uses the File System
-     Access API; Firefox/Safari uses <input webkitdirectory>.
-
-<<<<<<< HEAD
-  2. MANGADEX (requires proxy.js)
-     Because MangaDex blocks direct browser requests (CORS),
-     all API + image traffic is routed through a tiny Node.js
-     proxy that must be running locally.
-
-     Start it:  node proxy.js   (port 3005 by default)
-     Then click the MANGADEX tab.
-=======
-     Start it:  node proxy.js   (port 3005 by default)
->>>>>>> 26755257dac64640995f8e52a1c88d51cff10844
-
-  LOCAL folder structure (images):
+  Folder structure (images):
     LIBRARY/
       Series Name/
-        Chapter 001/   ← folder of image files
+        Chapter 001/
         Chapter 002/
 
-  LOCAL folder structure (PDFs):
+  Folder structure (PDFs):
     LIBRARY/
       Series Name/
         Chapter 001.pdf
-        Chapter 002.pdf
-
-  PDF support powered by PDF.js — no install needed.
-  Each PDF page renders as an image, navigated identically
-  to image chapters. Page count shown in chapter list.
 
   Keyboard shortcuts (reader):
-    ← →   previous / next page (auto-advances chapter at boundary)
+    ← →   previous / next page
     + / -  zoom in / out
     0      reset zoom
-  ============================================================
 -->
 <style>
 :root {
@@ -95,11 +69,6 @@ header { display: flex; align-items: center; gap: 10px; padding: 0 14px; height:
 .logo:hover .logo-sub { color: var(--red); }
 
 
-
-
-
-
-
 .breadcrumb { display: flex; align-items: center; gap: 6px; font-family: var(--f-hdr); font-weight: 700; font-size: 15px; color: #f5f5f5; letter-spacing: 0.5px; flex: 1; overflow: hidden; min-width: 0; }
 .crumb { cursor: pointer; white-space: normal; overflow: visible; text-overflow: clip; max-width: none; transition: color 0.12s; word-break: break-word; }
 .crumb:hover { color: var(--red); }
@@ -110,17 +79,6 @@ header { display: flex; align-items: center; gap: 10px; padding: 0 14px; height:
 #header-search input { flex: 1; min-width: 0; background: #0c0b14; border: 1px solid #3a3748; color: var(--paper); padding: 6px 10px; font-family: var(--f-body); font-size: 12px; letter-spacing: 0.5px; outline: none; transition: border-color 0.13s; height: 30px; border-radius: var(--r); }
 #header-search input:focus { border-color: var(--red); }
 #header-search input::placeholder { color: #6b6478; }
-/* ☰ sort select wrapper */
-.sort-select-wrap { position: relative; width: 30px; height: 30px; flex-shrink: 0; border: 1px solid #3a3748; border-radius: var(--r); background: #0c0b14; transition: border-color 0.13s; }
-.sort-select-wrap:hover { border-color: var(--red); }
-.sort-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; pointer-events: none; color: var(--paper); letter-spacing: 0; }
-.sort-hidden { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: none; background: transparent; }
-/* integrated search button */
-.search-submit-btn { flex-shrink: 0; width: 30px; height: 30px; background: var(--red); border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; border-radius: var(--r); transition: background 0.13s; }
-.search-submit-btn:hover { background: var(--red-dark); }
-#header-sort { background: #0c0b14; border: 1px solid #3a3748; color: var(--paper); padding: 5px 8px; font-family: var(--f-hdr); font-weight: 700; font-size: 11px; letter-spacing: 0.5px; outline: none; cursor: pointer; border-radius: var(--r); height: 30px; }
-#header-sort:focus { border-color: var(--red); }
-#header-sort option { background: #100f18; }
 
 /* ── BUTTONS ── */
 .btn { background: transparent; border: 1.5px solid #2b2933; color: var(--paper); padding: 7px 13px; font-family: var(--f-hdr); font-weight: 700; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.13s; white-space: nowrap; touch-action: manipulation; border-radius: var(--r); }
@@ -133,7 +91,6 @@ header { display: flex; align-items: center; gap: 10px; padding: 0 14px; height:
 /* ── VIEWS ── */
 .view { display: none; flex: 1; min-height: 0; overflow-y: auto; }
 .view.active { display: flex; }
-
 
 
 /* ── LANDING ── */
@@ -184,52 +141,6 @@ header { display: flex; align-items: center; gap: 10px; padding: 0 14px; height:
 .s-name { background: #232131; border: 1px solid #161520; border-top: none; padding: 7px 8px 9px; font-family: var(--f-body); font-size: 12px; letter-spacing: 0.3px; color: var(--paper); line-height: 1.5; word-break: break-word; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; border-radius: 0 0 var(--r) var(--r); transition: all 0.2s ease; cursor: pointer; }
 .s-name:hover { position: absolute; bottom: 0; left: 0; right: 0; overflow: visible; -webkit-line-clamp: unset; white-space: normal; word-break: break-word; background: #252131; border: 1px solid #2a2839; border-top: 1px solid #161520; z-index: 10; box-shadow: 0 -4px 12px rgba(0,0,0,0.6); }
 
-/* ── MANGADEX SEARCH ── */
-#view-mdex { flex-direction: column; }
-
-
-
-
-
-
-/* ── MANGADEX SEARCH PREVIEW DROPDOWN ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ── MANGADEX DETAIL ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ── CHAPTER LISTS (shared) ── */
 #view-chapters { flex-direction: column; }
@@ -279,7 +190,7 @@ header { display: flex; align-items: center; gap: 10px; padding: 0 14px; height:
 .pw img { max-height: calc(100dvh - var(--hdr) - var(--bar)); max-width: 100%; object-fit: contain; display: block; box-shadow: 0 6px 50px rgba(0,0,0,0.9); transition: max-height 0.3s ease; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; pointer-events: none; }
 #read-area.bar-hidden .pw img { max-height: calc(100dvh - var(--hdr)); }
 @keyframes pi { from { opacity:0; transform:translateX(14px); } to { opacity:1; transform:translateX(0); } }
-.nav-a { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 72px; background: rgba(8,8,8,0.78); border: 1.5px solid #f5f5f5; color: var(--paper); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.13s; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); touch-action: manipulation; border-radius: var(--r); }
+.nav-a { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 72px; background: transparent; border: none; color: transparent; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; touch-action: manipulation; border-radius: var(--r); pointer-events: none; }
 .nav-a:hover { background: var(--red); border-color: var(--red); }
 .nav-a:disabled { opacity: 0.13; pointer-events: none; }
 #nav-prev { left: 4px; }
@@ -311,7 +222,6 @@ header.theatre { transform: translateY(-100%); opacity: 0; pointer-events: none;
 .zb { width: 26px; height: 26px; background: transparent; border: 1px solid #f5f5f5; color: var(--paper); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; line-height: 1; touch-action: manipulation; border-radius: var(--r); }
 .zb:hover { border-color: var(--red); color: var(--red); }
 #ztxt { font-family: var(--f-hdr); font-weight: 700; font-size: 10px; color: #f5f5f5; min-width: 34px; text-align: center; }
-.rctrl { display: flex; gap: 5px; margin-left: auto; }
 /* ── PAGE JUMP ── */
 .page-jump-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .page-jump-input { width: 44px; height: 26px; background: transparent; border: 1px solid #3a3748; color: var(--paper); font-family: var(--f-hdr); font-weight: 700; font-size: 11px; text-align: center; border-radius: var(--r); outline: none; -moz-appearance: textfield; padding: 0 2px; }
@@ -336,7 +246,6 @@ header.theatre { transform: translateY(-100%); opacity: 0; pointer-events: none;
 .ctx-item { background: transparent; border: none; border-bottom: 1px solid #1e1c2a; color: var(--paper); font-family: var(--f-hdr); font-weight: 700; font-size: 11px; letter-spacing: 0.8px; padding: 10px 14px; text-align: left; cursor: pointer; transition: background 0.1s; display: flex; align-items: center; gap: 8px; }
 .ctx-item:last-child { border-bottom: none; }
 .ctx-item:hover { background: #232131; color: var(--red); }
-/* Bookmark badge on chapter header hero */
 /* ── MODALS ── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 800; display: none; align-items: center; justify-content: center; padding: 20px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 .modal-overlay.open { display: flex; }
@@ -356,16 +265,7 @@ header.theatre { transform: translateY(-100%); opacity: 0; pointer-events: none;
 .ident-title { font-family: var(--f-body); font-size: 12px; color: var(--paper); }
 .ident-meta { font-family: var(--f-hdr); font-weight: 700; font-size: 9px; color: #9690a2; letter-spacing: 0.5px; margin-top: 2px; }
 .ident-active { border-left: 2px solid var(--red); }
-/* Download modal */
 
-
-
-
-
-.dl-prog-wrap { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; border-top: 1px solid #27252e; }
-.dl-prog-bar { height: 4px; background: #27252e; border-radius: 2px; overflow: hidden; }
-.dl-prog-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.3s; width: 0%; }
-.dl-prog-text { font-family: var(--f-hdr); font-weight: 700; font-size: 9px; letter-spacing: 0.5px; color: #9690a2; }
 /* Author link */
 .author-link { color: var(--red); cursor: pointer; text-decoration: none; transition: opacity 0.13s; display: inline-flex; align-items: center; gap: 3px; }
 .author-link:hover { opacity: 0.75; text-decoration: underline; }
@@ -399,8 +299,6 @@ body.theme-test-pink .land-title-sub { color: #FFDBFF; }
 body.theme-test-pink .prev-name { color: #FFB6E1; }
 body.theme-test-pink .mu-desc { color: #FFB6E1; }
 body.theme-test-pink .mu-genre { color: #FFB6E1; border-color: #FF99D8; }
-body.theme-test-pink 
-body.theme-test-pink 
 body.theme-test-pink #search::placeholder { color: #FF99D8; }
 body.theme-test-pink #header-search input::placeholder { color: #FF99D8; }
 
@@ -530,7 +428,6 @@ body.theme-test-pink #header-search input::placeholder { color: #FF99D8; }
 .ident-meta       { font-size: 10px; }
 
 
-
 /* Settings panel */
 .settings-title   { font-size: 18px; }
 .settings-label   { font-size: 13px; }
@@ -541,14 +438,10 @@ body.theme-test-pink #header-search input::placeholder { color: #FF99D8; }
 
 <header>
   <div class="logo"><span class="logo-main">NeruYomi</span><span class="logo-sub">ねるよみ</span></div>
-  
   <button id="mobile-back-btn" title="Go back" onclick="mobileBack()">←</button>
   <nav class="breadcrumb" id="bc"></nav>
   <div id="header-search">
     <input type="text" id="search" placeholder="Filter library…" autocomplete="off">
-    
-    
-    
   </div>
   <div class="header-right" id="hr">
     <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
@@ -599,14 +492,7 @@ body.theme-test-pink #header-search input::placeholder { color: #FF99D8; }
       <div id="local-continue-wrap"></div>
     </div>
   </div>
-  <div class="ch-list" id="ch-list"></div>
-</div>
-
-
-</div>
-
-
-
+<div class="ch-list" id="ch-list"></div>
 </div>
 
 <!-- READER -->
@@ -617,6 +503,8 @@ body.theme-test-pink #header-search input::placeholder { color: #FF99D8; }
       <div class="nav-zone nav-left" id="nav-left"></div>
       <div class="nav-zone nav-center" id="nav-center"></div>
       <div class="nav-zone nav-right" id="nav-right"></div>
+      <button class="nav-a" id="nav-prev">◀</button>
+      <button class="nav-a" id="nav-next">▶</button>
       <div id="page-display"></div>
       <div id="ch-toast"></div>
     </div>
@@ -752,7 +640,7 @@ let rootHandle = null, library = [], curSeries = null, curChIdx = 0;
 
 // Reader (shared)
 let pages = [], curPage = 0, spread = false, rtl = true, zoom = 1;
-const readerSrc = 'local';
+let readerSrc = 'local';
 
 // Settings
 let userSettings = {
@@ -1064,8 +952,6 @@ async function preloadPdfPage(entry) {
 const $      = id => document.getElementById(id);
 
 const HAS_FSAPI = ('showDirectoryPicker' in window);
-
-
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -1557,10 +1443,10 @@ async function openLocalChapter(idx, startAtEnd=false) {
     const saved = getChProg('local:'+curSeries.name, ch.name);
     // Resume only if genuinely in-progress (page > 0 in LTR, or page < last in RTL)
     const inProgress = saved && !saved.read && saved.page > 0 && saved.page < pages.length - 1;
-    curPage = inProgress ? saved.page : (rtl ? Math.max(0, pages.length - 1) : 0);
+    curPage = inProgress ? saved.page : 0;
   } else {
     // Arriving from the previous chapter — land at the reading-direction "end"
-    curPage = rtl ? 0 : Math.max(0, pages.length - 1);
+    curPage = 0;
   }
   zoom=1;
   const preIdx=startAtEnd ? [curPage, curPage-1, curPage-2] : [curPage, curPage+1, curPage+2];
@@ -1629,8 +1515,8 @@ function renderPage() {
   // Sync thumbnail highlight
   document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('on'));
   const at=$('th-'+curPage); if(at){at.classList.add('on');at.scrollIntoView({block:'nearest'});}
-  $('nav-prev').disabled=rtl?curPage>=pages.length-1:curPage<=0;
-  $('nav-next').disabled=rtl?curPage<=0:curPage>=pages.length-1;
+  $('nav-prev').disabled = curPage <= 0;
+  $('nav-next').disabled = curPage >= pages.length - 1;
 }
 
 function spreadIdxs() {
@@ -1643,13 +1529,14 @@ function spreadIdxs() {
 function renderProgressSegs() {
   const prog = $('prog');
   prog.innerHTML = '';
-  for (let i = 0; i < pages.length; i++) {
+  const order = rtl ? [...Array(pages.length).keys()].reverse() : [...Array(pages.length).keys()];
+  order.forEach(i => {
     const seg = document.createElement('div');
     seg.className = 'prog-seg';
     seg.id = 'ps-' + i;
     seg.onclick = (e) => { e.stopPropagation(); jump(i); };
     prog.appendChild(seg);
-  }
+  });
 }
 
 /** Updates the bottom status bar. */
@@ -1703,28 +1590,18 @@ function goPrevChapter() {
 }
 
 function goNext() {
-  const s=spread?2:1;
-  if (rtl) {
-    if (curPage > 0) jump(Math.max(0, curPage-s));
-    else goNextChapter();
-  } else {
-    if (curPage < pages.length-1) jump(Math.min(pages.length-1, curPage+s));
-    else goNextChapter();
-  }
+  const s = spread ? 2 : 1;
+  if (curPage < pages.length - 1) jump(Math.min(pages.length - 1, curPage + s));
+  else goNextChapter();
 }
 function goPrev() {
-  const s=spread?2:1;
-  if (rtl) {
-    if (curPage < pages.length-1) jump(Math.min(pages.length-1, curPage+s));
-    else goPrevChapter();
-  } else {
-    if (curPage > 0) jump(Math.max(0, curPage-s));
-    else goPrevChapter();
-  }
+  const s = spread ? 2 : 1;
+  if (curPage > 0) jump(Math.max(0, curPage - s));
+  else goPrevChapter();
 }
 // Navigation zones
-$('nav-left').onclick=goPrev;
-$('nav-right').onclick=goNext;
+$('nav-left').onclick  = () => rtl ? goNext() : goPrev();
+$('nav-right').onclick = () => rtl ? goPrev() : goNext();
 // Center zone toggles reader bar visibility
 let barVisible = true;
 let theatreMode = false;
@@ -1768,8 +1645,8 @@ function _triggerTheatre() {
 }
 document.addEventListener('keydown',e=>{
   if(!$('view-reader').classList.contains('active'))return;
-  if(e.key==='ArrowRight'||e.key==='ArrowDown') goNext();
-  if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   goPrev();
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') rtl ? goPrev() : goNext();
+  if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   rtl ? goNext() : goPrev();
   if(e.key==='+'||e.key==='=') adjZ(ZSTEP);
   if(e.key==='-')              adjZ(-ZSTEP);
   if(e.key==='0')              {zoom=1;applyZ();}
@@ -1793,7 +1670,10 @@ $('read-area').addEventListener('touchend',e=>{
   const elapsed=Date.now()-tsT;
   // Cancel if vertical movement dominates OR swipe is too slow
   if(Math.abs(dy)>Math.abs(dx)){ts=null;return;}
-  if(Math.abs(dx)>50&&Math.abs(dx)/elapsed>0.25)dx>0?goNext():goPrev();
+  if(Math.abs(dx)>50&&Math.abs(dx)/elapsed>0.25) {
+  if (rtl) dx>0?goPrev():goNext();
+  else dx>0?goNext():goPrev();
+  }
   ts=null; tsY=null; tsT=null;
 });
 $('prog').onclick=function(e){ if(!pages.length)return; jump(Math.round((e.offsetX/this.offsetWidth)*(pages.length-1))); };
@@ -1954,7 +1834,6 @@ function clearMuOverride() {
   closeIdentifyModal();
   if (curSeries && curSeries.name === key) openSeries(_identifySeries);
 }
-
 
 
 // ═══════════════════════════════════════════════════════════════
