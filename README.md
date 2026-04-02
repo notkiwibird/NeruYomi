@@ -52,7 +52,7 @@ A lightweight, native manga reader for Windows, macOS, and Linux. Built with Tau
 
 ## Roadmap
 
-### v0.49 — UI Polish
+### UI Polish
 - Redesign the library grid and series cards
 - Improve header layout and breadcrumb on all screen sizes
 - Add smooth view transitions (slide in/out between library → series → reader)
@@ -61,27 +61,27 @@ A lightweight, native manga reader for Windows, macOS, and Linux. Built with Tau
 - Webtoon / vertical scroll mode for manhwa and long-strip chapters
 - Cleaner settings panel with better organisation
 
-### v0.50 — Persistent Library (Phase 3)
+### Persistent Library (Phase 3)
 - Library folder reopens automatically on launch — no folder picker every session
 - Read progress and bookmarks written to a local file instead of browser storage
 - Export and import progress as a JSON file for backup or migration
 - File associations: double-click `.cbz`, `.zip`, `.pdf` to open directly in NeruYomi
 
-### v1.0 — Server & Self-Hosting
+### Server & Self-Hosting
 - Optional local server mode — run NeruYomi as a media server on a home machine
 - Access your library from any device on the same network via browser or the app
 - Jellyfin-style experience: browse, read, and track progress from any device
 - Server dashboard for managing the library and monitoring connections
 - OPDS catalog support for compatibility with other readers
 
-### v1.1 — Accounts & Sync
+### Accounts & Sync
 - Multi-user accounts on a shared NeruYomi server
 - Per-user read progress, bookmarks, and settings
 - Progress sync across devices — pick up on your phone where you left off on desktop
 - Reading history and statistics per user
 - Optional PIN or password protection per account
 
-### v1.2 — Extended Format Support
+### Extended Format Support
 - CBZ and CBR archive support (no extraction needed)
 - EPUB support for light novels and manga in EPUB format
 - Automatic chapter ordering for non-standard folder naming conventions
