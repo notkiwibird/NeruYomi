@@ -89,7 +89,6 @@ A lightweight, native manga reader for Windows, macOS, and Linux. Built with Tau
 ### Future
 - Plugin system for custom metadata sources
 - Reading lists and collections
-- Community features on self-hosted servers (shared shelves, recommendations)
 
 ---
 
