@@ -1,11 +1,11 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "identifier": "com.neruyomi.app",
+  "identifier": "com.neruyomi.reader",
   "productName": "NeruYomi",
   "version": "0.48.0",
 
   "build": {
-    "frontendDist": "../"
+    "frontendDist": "../dist"
   },
 
   "app": {
@@ -36,6 +36,4 @@
       "icons/icon.ico"
     ]
   }
-
-  
 }
