@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 src-tauri/target/
 node_modules/
 src-tauri/gen/
 .DS_Store
+=======
+src-tauri/target/
+node_modules/
+src-tauri/gen/
+.DS_Store
+>>>>>>> 26755257dac64640995f8e52a1c88d51cff10844
 Thumbs.db

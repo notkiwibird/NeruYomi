@@ -15,18 +15,23 @@
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap" rel="stylesheet">
 <title>NeruYomi V0.48B</title>
-<script src="MANGA%20READER_files/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <!--
   ============================================================
   MANGA READER — Local + MangaDex edition
   ============================================================
 
+<<<<<<< HEAD
   Two content sources:
+=======
+  Source:
+>>>>>>> 26755257dac64640995f8e52a1c88d51cff10844
 
   1. LOCAL LIBRARY (no server needed)
      Open a folder from disk. Chrome/Edge uses the File System
      Access API; Firefox/Safari uses <input webkitdirectory>.
 
+<<<<<<< HEAD
   2. MANGADEX (requires proxy.js)
      Because MangaDex blocks direct browser requests (CORS),
      all API + image traffic is routed through a tiny Node.js
@@ -34,6 +39,9 @@
 
      Start it:  node proxy.js   (port 3005 by default)
      Then click the MANGADEX tab.
+=======
+     Start it:  node proxy.js   (port 3005 by default)
+>>>>>>> 26755257dac64640995f8e52a1c88d51cff10844
 
   LOCAL folder structure (images):
     LIBRARY/
@@ -707,7 +715,21 @@ body.theme-test-pink #header-search input::placeholder { color: #FF99D8; }
 // ═══════════════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════════════
-const PROXY = 'http://127.0.0.1:3005'; // MangaUpdates metadata proxy (node proxy.js)
+const IS_TAURI = !!window.__TAURI_INTERNALS__;
+const invoke = (...args) => window.__TAURI_INTERNALS__.invoke(...args);
+
+async function muSearch(search, perpage = 5) {
+  if (IS_TAURI) {
+    return invoke('search_mu', { search, perpage });
+  }
+  const res = await fetch(`http://127.0.0.1:3005/mu/series/search`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ search, perpage }),
+  });
+  if (!res.ok) throw new Error(`proxy ${res.status}`);
+  return res.json();
+}
 
 // ═══════════════════════════════════════════════════════════════
 // BOOKMARKS & OVERRIDES (persistent)
@@ -927,30 +949,16 @@ function saveMuCache() {
  */
 async function fetchMuInfo(name, force = false) {
   if (!force && Object.prototype.hasOwnProperty.call(muCache, name)) return muCache[name];
-  // Use override title if user has manually identified this series
   const searchName = muOverrides[name]?.title || name;
   try {
-    // Route through the local proxy (same one used for MangaDex) so the
-    // browser's null-origin CORS restriction doesn't block the request.
-    const res = await fetch(`${PROXY}/mu/series/search`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ search: searchName, perpage: 5 })
-    });
-    if (!res.ok) { muCache[name] = null; saveMuCache(); return null; }
-    const data = await res.json();
+    const data = await muSearch(searchName, 5);
     const results = data.results || [];
     if (!results.length) { muCache[name] = null; saveMuCache(); return null; }
-
-    // Prefer an exact title match (case-insensitive); fall back to first result
     const nl = name.toLowerCase();
     const best = results.find(r => (r.hit_title || r.record?.title || '').toLowerCase() === nl)
               || results[0];
-    const rec  = best.record || {};
-
-    // Strip HTML tags MangaUpdates sometimes embeds in descriptions
+    const rec = best.record || {};
     const stripHtml = s => (s || '').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
-
     const info = {
       id:          rec.series_id,
       title:       rec.title || name,
@@ -969,7 +977,7 @@ async function fetchMuInfo(name, force = false) {
     muCache[name] = info;
     saveMuCache();
     return info;
-  } catch (e) {
+  } catch(e) {
     console.warn('[MU] fetch failed for', name, e);
     muCache[name] = null;
     saveMuCache();
@@ -1898,16 +1906,10 @@ async function runIdentifySearch() {
   const res = $('identify-results');
   res.innerHTML = '<div class="empty" style="height:80px"><div class="spin"></div></div>';
   try {
-    const r = await fetch(`${PROXY}/mu/series/search`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ search: q, perpage: 10 })
-    });
-    if (!r.ok) throw new Error('proxy error');
-    const data = await r.json();
-    renderIdentifyResults(data.results || []);
+    const data = await muSearch(q, 10);
+renderIdentifyResults(data.results || []);
   } catch(e) {
-    res.innerHTML = '<div style="padding:14px;font-family:var(--f-hdr);font-weight:700;font-size:10px;color:#9690a2;letter-spacing:0.5px">PROXY MUST BE RUNNING (node proxy.js)</div>';
+    res.innerHTML = '<div style="padding:14px;font-family:var(--f-hdr);font-weight:700;font-size:10px;color:#9690a2;letter-spacing:0.5px">MANGAUPDATES UNAVAILABLE</div>';
   }
 }
 
@@ -2018,4 +2020,3 @@ show('landing');
 </script>
 
 
-</body></html>
