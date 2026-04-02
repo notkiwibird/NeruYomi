@@ -21,19 +21,13 @@
   MANGA READER — Local + MangaDex edition
   ============================================================
 
-  Two content sources:
+  Source:
 
   1. LOCAL LIBRARY (no server needed)
      Open a folder from disk. Chrome/Edge uses the File System
      Access API; Firefox/Safari uses <input webkitdirectory>.
 
-  2. MANGADEX (requires proxy.js)
-     Because MangaDex blocks direct browser requests (CORS),
-     all API + image traffic is routed through a tiny Node.js
-     proxy that must be running locally.
-
      Start it:  node proxy.js   (port 3005 by default)
-     Then click the MANGADEX tab.
 
   LOCAL folder structure (images):
     LIBRARY/
